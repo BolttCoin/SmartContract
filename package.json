@@ -1,0 +1,15 @@
+{
+  "name": "ico",
+  "version": "1.0.0",
+  "description": "ico crowdsale",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "truffle": "^4.0.6",
+    "zeppelin-solidity": "^1.6.0"
+  }
+}
