@@ -1,4 +1,4 @@
-<p align="center">![BOLTTCOIN](boltt.jpeg "Boltt")</p>
+<p align="center"><img src="boltt.jpeg"></p>
 
 
 # Boltt smart contract
