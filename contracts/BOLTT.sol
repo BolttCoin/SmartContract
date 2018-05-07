@@ -219,7 +219,6 @@ contract BolttToken is ERC20Interface, TokenConfig {
         require(running);
         require(!paused);
         require(msg.value > 10**16);
-        // need to decide the rate
         uint256 mintedToken = (msg.value / 10**16) * 10**8 * rate;
         
         require(balances[bolttReserve] > mintedToken);
