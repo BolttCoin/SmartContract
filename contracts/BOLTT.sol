@@ -7,7 +7,7 @@ contract TokenConfig {
     string public constant symbol = "BOLTT";
     string public constant name = "BOLTT COIN";
     uint8 public constant decimal = 8; // 8 decimal same as WAVES
-    uint256 _totalSupply = 1000*10**6*10**8; // 1 billion BOLTT token supply
+    uint256 _totalSupply = 500*10**6*10**8; // 500 million BOLTT token supply
 }
 
 /// @title ERC20Interface for ERC-20 standards.
@@ -75,12 +75,8 @@ contract BolttToken is ERC20Interface, TokenConfig {
     uint256 public lockPeriod = now + 90 days;
     
     // crowdsale stages.
-    bool public privateSaleStage = true;
-    bool public preSaleStage = true;
-    bool public mainSalefirstStage = true;
-    bool public mainSaleSecondStage = true;
-    bool public mainSaleThirdStage =  true;
-    bool public mainSaleFourthStage = true;
+    string public stageName = 'private-sale';
+    uint256 public stageNumber = 0;
     
     // balance of each account.
     mapping (address => uint256) public balances;
@@ -219,11 +215,49 @@ contract BolttToken is ERC20Interface, TokenConfig {
         require(running);
         require(!paused);
         require(msg.value > 10**16);
-        uint256 mintedToken = (msg.value / 10**16) * 10**8 * rate;
+        // need to decide the rate
         
-        require(balances[bolttReserve] > mintedToken);
-        balances[msg.sender] += mintedToken;
-        balances[bolttReserve] -= mintedToken;
+        uint256 ethervalue = msg.value * 100;
+        uint256 mintedToken = (((ethervalue / 10**16) * rate) / 100) * 10**8;
+        
+        if(stageNumber == 0) {
+            
+            // minimum investnent for private sale should be 100 ethers.
+            require(msg.value >= 100 ether);
+            
+            if(msg.value >= 100 ether && msg.value < 500 ether) {
+                // bonus between 100 and 500 ether is 30%.
+                mintedToken = mintedToken + mintedToken * 3 / 10;
+            } else if ( msg.value >= 500 ether && msg.value < 1500 ether) {
+                // bonus between 500 to 1500 is 40%.
+                mintedToken = mintedToken + mintedToken * 2 / 5;
+            } else if (msg.value >= 1500 ether) {
+                // bonus above 1500 ether is 50%.
+                mintedToken = mintedToken + mintedToken / 2;
+            }
+            
+            require(balances[bolttReserve] > mintedToken);
+            balances[msg.sender] += mintedToken;
+            balances[bolttReserve] -= mintedToken;
+            
+        } else if (stageNumber == 1) {
+            // minimum investnent for pre sale should be 10 ethers.
+            require(msg.value > 10 ether);
+            
+            mintedToken = mintedToken + mintedToken / 5;
+            
+            require(balances[bolttReserve] > mintedToken);
+            balances[msg.sender] += mintedToken;
+            balances[bolttReserve] -= mintedToken;
+        } else if (stageNumber == 2) {
+            
+            // no bonus for public stage.
+            require(balances[bolttReserve] > mintedToken);
+            balances[msg.sender] += mintedToken;
+            balances[bolttReserve] -= mintedToken;
+        }
+        
+        
     }
     
     
@@ -262,40 +296,18 @@ contract BolttToken is ERC20Interface, TokenConfig {
     }
     
     /// @dev stages configuration.
-    function preSaleStageCapped(uint256 _newRate) public onlyOwner {
-        require(preSaleStage);
-        rate = _newRate;
-        preSaleStage = false;
-    } 
-    
-    function privateSaleStageCapped(uint256 _newRate) public onlyOwner {
-        require(privateSaleStage);
-        rate = _newRate;
-        privateSaleStage = false;
+    function status() public onlyOwner view returns(string) {
+        return stageName;
     }
     
-    function mainSalefirstStageCapped(uint256 _newRate) public onlyOwner {
-        require(mainSalefirstStage);
-        rate = _newRate;
-        mainSalefirstStage = false;
+    /// @dev changing the stage name.
+    function activatePrivateSale() public onlyOwner {
+        stageName = 'pre-sale';
+        stageNumber = 1;
     }
     
-    function mainSaleSecondStageCapped(uint256 _newRate) public onlyOwner {
-        require(mainSaleSecondStage);
-        rate = _newRate;
-        mainSaleSecondStage = false;
+    function activatePublicSale() public {
+        stageName = 'public-sale';
+        stageNumber = 2;
     }
-    
-    function mainSaleThirdStageCapped(uint256 _newRate) public onlyOwner {
-        require(mainSaleThirdStage);
-        rate = _newRate;
-        mainSaleThirdStage = false;
-    }
-    
-    function mainSaleFourthStageCapped(uint256 _newRate) public onlyOwner {
-        require(mainSaleFourthStage);
-        rate = _newRate;
-        mainSaleFourthStage = false;
-    }
-    
 }
