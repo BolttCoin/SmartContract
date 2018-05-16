@@ -7,7 +7,7 @@ contract TokenConfig {
     string public constant symbol = "BOLTT";
     string public constant name = "BOLTT COIN";
     uint8 public constant decimal = 8; // 8 decimal same as WAVES
-    uint256 _totalSupply = 170*10**6*10**8; // 170 million BOLTT token supply
+    uint256 _totalSupply = 500*10**6*10**8; // 500 million BOLTT token supply
 }
 
 /// @title ERC20Interface for ERC-20 standards.
@@ -83,6 +83,9 @@ contract BolttToken is ERC20Interface, TokenConfig {
     
     // owner of an account approves the transfer of amount to other account.
     mapping (address => mapping (address => uint256)) public allowed;
+    
+    // white list
+    mapping (address => bool) public whiteList;
     
     /*** MODIFIERS ***/
     
@@ -220,44 +223,76 @@ contract BolttToken is ERC20Interface, TokenConfig {
         uint256 ethervalue = msg.value * 100;
         uint256 mintedToken = (((ethervalue / 10**16) * rate) / 100) * 10**8;
         
-        if(stageNumber == 0) {
+        if(whiteList[msg.sender] == true) {
             
-            // minimum investnent for private sale should be 100 ethers.
-            require(msg.value >= 100 ether);
-            
-            if(msg.value >= 100 ether && msg.value < 500 ether) {
+            if(msg.value >= 0 ether && msg.value < 100 ether){
+                // bonus betweeen 0 to 100 ether is 20%.
+                mintedToken = mintedToken + mintedToken / 4;
+            } else if(msg.value >= 100 ether && msg.value < 500 ether) {
                 // bonus between 100 and 500 ether is 30%.
-                mintedToken = mintedToken + mintedToken * 3 / 10;
+                mintedToken = mintedToken + mintedToken * 7 / 20;
             } else if ( msg.value >= 500 ether && msg.value < 1500 ether) {
                 // bonus between 500 to 1500 is 40%.
-                mintedToken = mintedToken + mintedToken * 2 / 5;
+                mintedToken = mintedToken + mintedToken * 9 / 20;
             } else if (msg.value >= 1500 ether) {
                 // bonus above 1500 ether is 50%.
-                mintedToken = mintedToken + mintedToken / 2;
+                mintedToken = mintedToken + mintedToken * 11 / 20;
             }
             
             require(balances[bolttReserve] > mintedToken);
             balances[msg.sender] += mintedToken;
             balances[bolttReserve] -= mintedToken;
             
-        } else if (stageNumber == 1) {
-            // minimum investnent for pre sale should be 10 ethers.
-            require(msg.value > 10 ether);
-            
-            mintedToken = mintedToken + mintedToken / 5;
-            
-            require(balances[bolttReserve] > mintedToken);
-            balances[msg.sender] += mintedToken;
-            balances[bolttReserve] -= mintedToken;
-        } else if (stageNumber == 2) {
-            
-            // no bonus for public stage.
-            require(balances[bolttReserve] > mintedToken);
-            balances[msg.sender] += mintedToken;
-            balances[bolttReserve] -= mintedToken;
+        } else {
+        
+            if(stageNumber == 0) {
+                
+                if(msg.value >= 0 ether && msg.value < 100 ether){
+                    // bonus betweeen 0 to 100 ether is 20%.
+                    mintedToken = mintedToken + mintedToken / 5;
+                } else if(msg.value >= 100 ether && msg.value < 500 ether) {
+                    // bonus between 100 and 500 ether is 30%.
+                    mintedToken = mintedToken + mintedToken * 3 / 10;
+                } else if ( msg.value >= 500 ether && msg.value < 1500 ether) {
+                    // bonus between 500 to 1500 is 40%.
+                    mintedToken = mintedToken + mintedToken * 2 / 5;
+                } else if (msg.value >= 1500 ether) {
+                    // bonus above 1500 ether is 50%.
+                    mintedToken = mintedToken + mintedToken / 2;
+                }
+                
+                require(balances[bolttReserve] > mintedToken);
+                balances[msg.sender] += mintedToken;
+                balances[bolttReserve] -= mintedToken;
+                
+            } else if (stageNumber == 1) {
+                
+                if(msg.value >= 0 ether && msg.value < 100 ether){
+                    // bonus between 0 to 100 ether is 10%
+                    mintedToken = mintedToken + mintedToken / 10;
+                } else if(msg.value >= 100 ether && msg.value < 500 ether) {
+                    // bonus between 100 and 500 ether is 10%.
+                    mintedToken = mintedToken + mintedToken * 3 / 20;
+                } else if ( msg.value >= 500 ether && msg.value < 1500 ether) {
+                    // bonus between 500 to 1500 is 20%.
+                    mintedToken = mintedToken + mintedToken / 5;
+                } else if (msg.value >= 1500 ether) {
+                    // bonus above 1500 ether is 25%.
+                    mintedToken = mintedToken + mintedToken / 4;
+                }
+                
+                require(balances[bolttReserve] > mintedToken);
+                balances[msg.sender] += mintedToken;
+                balances[bolttReserve] -= mintedToken;
+            } else if (stageNumber == 2) {
+                
+                // no bonus for public stage.
+                require(balances[bolttReserve] > mintedToken);
+                balances[msg.sender] += mintedToken;
+                balances[bolttReserve] -= mintedToken;
+            }
+        
         }
-        
-        
     }
     
     
@@ -309,5 +344,10 @@ contract BolttToken is ERC20Interface, TokenConfig {
     function activatePublicSale() public {
         stageName = 'public-sale';
         stageNumber = 2;
+    }
+    
+    /// @notice whitelist address.
+    function whiteListAddress(address _address) public onlyOwner {
+        whiteList[_address] = true;
     }
 }
