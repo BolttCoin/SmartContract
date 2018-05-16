@@ -218,7 +218,6 @@ contract BolttToken is ERC20Interface, TokenConfig {
         require(running);
         require(!paused);
         require(msg.value > 10**16);
-        // need to decide the rate
         
         uint256 ethervalue = msg.value * 100;
         uint256 mintedToken = (((ethervalue / 10**16) * rate) / 100) * 10**8;
@@ -226,16 +225,16 @@ contract BolttToken is ERC20Interface, TokenConfig {
         if(whiteList[msg.sender] == true) {
             
             if(msg.value >= 0 ether && msg.value < 100 ether){
-                // bonus betweeen 0 to 100 ether is 20%.
+                // bonus betweeen 0 to 100 ether is 25%.
                 mintedToken = mintedToken + mintedToken / 4;
             } else if(msg.value >= 100 ether && msg.value < 500 ether) {
-                // bonus between 100 and 500 ether is 30%.
+                // bonus between 100 and 500 ether is 35%.
                 mintedToken = mintedToken + mintedToken * 7 / 20;
             } else if ( msg.value >= 500 ether && msg.value < 1500 ether) {
-                // bonus between 500 to 1500 is 40%.
+                // bonus between 500 to 1500 is 45%.
                 mintedToken = mintedToken + mintedToken * 9 / 20;
             } else if (msg.value >= 1500 ether) {
-                // bonus above 1500 ether is 50%.
+                // bonus above 1500 ether is 55%.
                 mintedToken = mintedToken + mintedToken * 11 / 20;
             }
             
@@ -271,7 +270,7 @@ contract BolttToken is ERC20Interface, TokenConfig {
                     // bonus between 0 to 100 ether is 10%
                     mintedToken = mintedToken + mintedToken / 10;
                 } else if(msg.value >= 100 ether && msg.value < 500 ether) {
-                    // bonus between 100 and 500 ether is 10%.
+                    // bonus between 100 and 500 ether is 15%.
                     mintedToken = mintedToken + mintedToken * 3 / 20;
                 } else if ( msg.value >= 500 ether && msg.value < 1500 ether) {
                     // bonus between 500 to 1500 is 20%.
@@ -351,3 +350,4 @@ contract BolttToken is ERC20Interface, TokenConfig {
         whiteList[_address] = true;
     }
 }
+
