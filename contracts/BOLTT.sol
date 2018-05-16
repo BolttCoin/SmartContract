@@ -7,7 +7,7 @@ contract TokenConfig {
     string public constant symbol = "BOLTT";
     string public constant name = "BOLTT COIN";
     uint8 public constant decimal = 8; // 8 decimal same as WAVES
-    uint256 _totalSupply = 500*10**6*10**8; // 500 million BOLTT token supply
+    uint256 _totalSupply = 170*10**6*10**8; // 170 million BOLTT token supply
 }
 
 /// @title ERC20Interface for ERC-20 standards.
