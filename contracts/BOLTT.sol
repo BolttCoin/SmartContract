@@ -222,7 +222,7 @@ contract BolttToken is ERC20Interface, TokenConfig {
         uint256 ethervalue = msg.value * 100;
         uint256 mintedToken = (((ethervalue / 10**16) * rate) / 100) * 10**8;
         
-        if(whiteList[msg.sender] == true) {
+        if(whiteList[msg.sender] == true && stageNumber == 0) {
             
             if(msg.value >= 0 ether && msg.value < 100 ether){
                 // bonus betweeen 0 to 100 ether is 25%.
@@ -335,7 +335,7 @@ contract BolttToken is ERC20Interface, TokenConfig {
     }
     
     /// @dev changing the stage name.
-    function activatePrivateSale() public onlyOwner {
+    function activatePreSale() public onlyOwner {
         stageName = 'pre-sale';
         stageNumber = 1;
     }
