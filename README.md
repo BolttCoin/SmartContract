@@ -90,3 +90,33 @@ MoveToWaves function is functino we deal with our dual blockchain. This function
 
 ### canUpgrade()
 Allow upgrade agent functionality kick in only if the crowdsale was success.
+
+
+
+
+BolttCoin
+
+BolttCoin is an trade-locked mintable token that has functionality to be upgraded and be used in multiple sale rounds.
+Usage
+Deploying
+
+This works best if you are using two addresses, one deploy_addr and the other team_addr. Ideally, team_addr is a multisig wallet.
+
+Initiate the token function with name and symbol set to ""; initialSupply set to 0; decimals as required; and mintable to "true" using deploy_addr as owner.
+
+Then, call:
+
+    setTransferAgent(deploy_addr, True) and setTransferAgent(team_addr, True) from deploy_addr to allow internal token transfers
+    setMintAgent(team_addr, True) to allow team multisig to mint tokens (optional)
+    setReleaseAgent(deploy_addr) to allow deploy_addr to enable trading, manually, on a future date
+    setUpgradeMaster(team_addr) to provide upgrade authority to team address
+
+On successful launch & testing, call setTokenInformation("BolttCoin", "BOLTT") to update ERC20 values.
+Ownership
+
+BolttCoin is an Ownable token, using transferOwnership the contract Ownership can be transferred to a safe executive wallet.
+Token Sale Rounds
+
+Using the approve function with setTransferAgent and setMintAgent mechanisms, set your crowdsale addresses to allow minting & transferring of tokens. This permits infinite crowdsale rounds.
+
+Future sale contracts must work with independently supplied token address, specified via sale constructor.
